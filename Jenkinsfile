@@ -4,13 +4,15 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    docker.build('ton-utilisateur/ton-image')
+                    echo 'Construction des images avec docker-compose...'
+                    sh 'docker-compose build'
                 }
             }
         }
         stage('Test') {
             steps {
                 echo 'C\'est parti pour les tests...'
+                // Ajoute tes étapes de test ici
             }
         }
         stage('Deploy') {
@@ -19,6 +21,7 @@ pipeline {
             }
             steps {
                 echo 'Déploiement sur la branche master uniquement !'
+                sh 'docker-compose up -d' // Déployer les services
             }
         }
     }
