@@ -13,12 +13,12 @@ pipeline {
                 echo 'Code source récupéré depuis GitHub.'
             }
         }
-        stage('Docker Build') { // docker build image stage
+        stage('Docker Build') { // docker-compose build image stage
             steps {
                 script {
                     sh '''
                         docker rm -f jenkins || true
-                        docker build -t $DOCKER_ID/$DOCKER_IMAGE:$DOCKER_TAG .
+                        docker-compose build
                         sleep 6
                     '''
                 }
@@ -28,7 +28,7 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        docker run -d -p 80:80 --name jenkins $DOCKER_ID/$DOCKER_IMAGE:$DOCKER_TAG
+                        docker-compose up -d
                         sleep 10
                     '''
                 }
@@ -49,7 +49,7 @@ pipeline {
                 script {
                     sh '''
                         docker login -u $DOCKER_ID -p $DOCKER_PASS
-                        docker push $DOCKER_ID/$DOCKER_IMAGE:$DOCKER_TAG
+                        docker-compose push
                     '''
                 }
             }
