@@ -1,10 +1,10 @@
 pipeline {
     agent any
     environment {
-        DOCKER_ID = "yukino" 
+        DOCKER_ID = "yukino" // replace this with your docker-id
         DOCKER_IMAGE = "datascientestapi"
-        DOCKER_TAG = "v.${BUILD_ID}.0"
-        KUBECONFIG = credentials("config")
+        DOCKER_TAG = "v.${BUILD_ID}.0" // we will tag our images with the current build in order to increment the value by 1 with each new build
+        KUBECONFIG = credentials("config") // we retrieve kubeconfig from secret file called config saved on Jenkins
     }
     stages {
         stage('Checkout Code') {
@@ -61,9 +61,7 @@ pipeline {
                         rm -Rf .kube
                         mkdir .kube
                         cat $KUBECONFIG > .kube/config
-                        cp fastapi/values.yaml values.yml
-                        sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
-                        helm upgrade --install app fastapi --values=values.yml --namespace dev
+                        kubectl apply -f k8s/deployment-dev.yaml --namespace dev
                     '''
                 }
             }
@@ -75,9 +73,7 @@ pipeline {
                         rm -Rf .kube
                         mkdir .kube
                         cat $KUBECONFIG > .kube/config
-                        cp fastapi/values.yaml values.yml
-                        sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
-                        helm upgrade --install app fastapi --values=values.yml --namespace staging
+                        kubectl apply -f k8s/deployment-staging.yaml --namespace staging
                     '''
                 }
             }
@@ -92,9 +88,7 @@ pipeline {
                         rm -Rf .kube
                         mkdir .kube
                         cat $KUBECONFIG > .kube/config
-                        cp fastapi/values.yaml values.yml
-                        sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
-                        helm upgrade --install app fastapi --values=values.yml --namespace prod
+                        kubectl apply -f k8s/deployment-prod.yaml --namespace prod
                     '''
                 }
             }
