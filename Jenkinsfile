@@ -1,8 +1,5 @@
 pipeline {
     agent any
-    parameters {
-        booleanParam(name: 'DEPLOY_PROD', defaultValue: false, description: 'Déployer en production ?')
-    }
     environment {
         DOCKER_ID = "yukino" // replace this with your docker-id
         DOCKER_IMAGE = "datascientestapi"
@@ -97,9 +94,7 @@ pipeline {
         }
         stage('Deploiement en prod') {
             when {
-                expression {
-                    return params.DEPLOY_PROD && env.BRANCH_NAME == 'master'
-                }
+                branch 'master' // deploy to production only if the branch is master
             }
             steps {
                 timeout(time: 15, unit: "MINUTES") {
