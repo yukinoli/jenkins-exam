@@ -24,11 +24,20 @@ pipeline {
                 }
             }
         }
-        stage('Docker Tag and Run') { // tag and run container from our built image
+        stage('Docker Tag') { // tag the built image
             steps {
                 script {
                     sh '''
-                        docker tag ${DOCKER_IMAGE}:latest $DOCKER_ID/${DOCKER_IMAGE}:${DOCKER_TAG}
+                        docker images
+                        docker tag ${DOCKER_ID}/${DOCKER_IMAGE}:latest $DOCKER_ID/${DOCKER_IMAGE}:${DOCKER_TAG}
+                    '''
+                }
+            }
+        }
+        stage('Docker Run') { // run container from our built image
+            steps {
+                script {
+                    sh '''
                         docker-compose up -d
                         sleep 10
                     '''
