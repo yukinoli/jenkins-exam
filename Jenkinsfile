@@ -94,12 +94,12 @@ pipeline {
         }
         stage('Deploiement en prod') {
             when {
-                branch 'master' // deploy to production only if the branch is master
+                expression {
+                    env.BRANCH_NAME ==~ /(origin\/)?master/
+                } // deploy to production only if the branch is master
             }
             steps {
-                timeout(time: 15, unit: "MINUTES") {
-                    input message: 'Voulez-vous procéder au déploiement en production ?', ok: 'Oui'
-                }
+                input message: 'Voulez-vous procéder au déploiement en production ?', ok: 'Oui'
                 script {
                     sh '''
                         rm -Rf .kube
