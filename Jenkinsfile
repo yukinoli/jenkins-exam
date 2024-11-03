@@ -20,16 +20,8 @@ pipeline {
                         docker rm -f jenkins || true
                         docker-compose build
                         sleep 6
-                    '''
-                }
-            }
-        }
-        stage('Docker Tag') { // tag the built image
-            steps {
-                script {
-                    sh '''
-                        docker images
-                        docker tag ${DOCKER_ID}/${DOCKER_IMAGE}:latest $DOCKER_ID/${DOCKER_IMAGE}:${DOCKER_TAG}
+                        # Tagging the image after build
+                        docker tag pipeline-exam-jenkins_movie_service $DOCKER_ID/${DOCKER_IMAGE}:${DOCKER_TAG}
                     '''
                 }
             }
