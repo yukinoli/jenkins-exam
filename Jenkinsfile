@@ -54,14 +54,53 @@ pipeline {
                 }
             }
         }
-        stage('Deploiement de Simple Pod') {
+        stage('Deploiement en dev') {
             steps {
                 script {
                     sh '''
                         rm -Rf .kube
                         mkdir .kube
                         cat $KUBECONFIG > .kube/config
-                        kubectl apply -f k8s/nginx.yaml --namespace dev
+                        kubectl apply -f nginx.yaml --namespace dev
+                    '''
+                }
+            }
+        }
+        stage('Deploiement en QA') {
+            steps {
+                script {
+                    sh '''
+                        rm -Rf .kube
+                        mkdir .kube
+                        cat $KUBECONFIG > .kube/config
+                        kubectl apply -f nginx.yaml --namespace qa
+                    '''
+                }
+            }
+        }
+        stage('Deploiement en staging') {
+            steps {
+                script {
+                    sh '''
+                        rm -Rf .kube
+                        mkdir .kube
+                        cat $KUBECONFIG > .kube/config
+                        kubectl apply -f nginx.yaml --namespace staging
+                    '''
+                }
+            }
+        }
+        stage('Deploiement en prod') {
+            steps {
+                timeout(time: 15, unit: "MINUTES") {
+                    input message: 'Voulez-vous procéder au déploiement en production ?', ok: 'Oui'
+                }
+                script {
+                    sh '''
+                        rm -Rf .kube
+                        mkdir .kube
+                        cat $KUBECONFIG > .kube/config
+                        kubectl apply -f nginx.yaml --namespace prod
                     '''
                 }
             }
