@@ -93,6 +93,9 @@ pipeline {
             }
         }
         stage('Deploiement en prod') {
+            when {
+                branch 'master' // deploy to production only if the branch is master
+            }
             steps {
                 timeout(time: 15, unit: "MINUTES") {
                     input message: 'Voulez-vous procéder au déploiement en production ?', ok: 'Oui'
