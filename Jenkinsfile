@@ -95,21 +95,22 @@ pipeline {
             }
         }
         stage('Deploiement en prod') {
+            when {
+                expression {
+                    return env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'origin/master' || env.GIT_BRANCH == 'master' || env.GIT_BRANCH == 'origin/master'
+                }
+            }
             steps {
+                timeout(time: 15, unit: "MINUTES") {
+                    input message: 'Voulez-vous procéder au déploiement en production ?', ok: 'Oui'
+                }
                 script {
-                    echo "BRANCH_NAME is: ${env.BRANCH_NAME}"
-                    echo "GIT_BRANCH is: ${env.GIT_BRANCH}"
-                    if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'origin/master' || env.GIT_BRANCH == 'master' || env.GIT_BRANCH == 'origin/master') {
-                        input message: 'Voulez-vous procéder au déploiement en production ?', ok: 'Oui'
-                        sh '''
-                            rm -Rf .kube
-                            mkdir .kube
-                            cat $KUBECONFIG > .kube/config
-                            kubectl apply -f nginx.yaml --namespace prod
-                        '''
-                    } else {
-                        echo "La branche actuelle n'est pas 'master'. Déploiement en production annulé."
-                    }
+                    sh '''
+                        rm -Rf .kube
+                        mkdir .kube
+                        cat $KUBECONFIG > .kube/config
+                        kubectl apply -f nginx.yaml --namespace prod
+                    '''
                 }
             }
         }
