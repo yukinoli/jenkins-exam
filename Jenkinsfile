@@ -11,6 +11,8 @@ pipeline {
             steps {
                 checkout scm
                 echo 'Code source récupéré depuis GitHub.'
+                echo "GIT_BRANCH is: ${env.GIT_BRANCH}"
+                echo "BRANCH_NAME is: ${env.BRANCH_NAME}"
             }
         }
         stage('Docker Build') { // docker-compose build image stage
@@ -93,20 +95,21 @@ pipeline {
             }
         }
         stage('Deploiement en prod') {
-            when {
-                expression {
-                    env.BRANCH_NAME ==~ /(origin\/)?master/
-                } // deploy to production only if the branch is master
-            }
             steps {
-                input message: 'Voulez-vous procéder au déploiement en production ?', ok: 'Oui'
                 script {
-                    sh '''
-                        rm -Rf .kube
-                        mkdir .kube
-                        cat $KUBECONFIG > .kube/config
-                        kubectl apply -f nginx.yaml --namespace prod
-                    '''
+                    echo "BRANCH_NAME is: ${env.BRANCH_NAME}"
+                    echo "GIT_BRANCH is: ${env.GIT_BRANCH}"
+                    if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == 'origin/master' || env.GIT_BRANCH == 'master' || env.GIT_BRANCH == 'origin/master') {
+                        input message: 'Voulez-vous procéder au déploiement en production ?', ok: 'Oui'
+                        sh '''
+                            rm -Rf .kube
+                            mkdir .kube
+                            cat $KUBECONFIG > .kube/config
+                            kubectl apply -f nginx.yaml --namespace prod
+                        '''
+                    } else {
+                        echo "La branche actuelle n'est pas 'master'. Déploiement en production annulé."
+                    }
                 }
             }
         }
