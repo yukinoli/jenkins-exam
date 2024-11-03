@@ -24,10 +24,11 @@ pipeline {
                 }
             }
         }
-        stage('Docker Run') { // run container from our built image
+        stage('Docker Tag and Run') { // tag and run container from our built image
             steps {
                 script {
                     sh '''
+                        docker tag ${DOCKER_IMAGE}:latest $DOCKER_ID/${DOCKER_IMAGE}:${DOCKER_TAG}
                         docker-compose up -d
                         sleep 10
                     '''
@@ -49,7 +50,7 @@ pipeline {
                 script {
                     sh '''
                         docker login -u $DOCKER_ID -p $DOCKER_PASS
-                        docker-compose push
+                        docker push $DOCKER_ID/${DOCKER_IMAGE}:${DOCKER_TAG}
                     '''
                 }
             }
