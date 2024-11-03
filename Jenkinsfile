@@ -93,10 +93,9 @@ pipeline {
             }
         }
         stage('Deploiement en prod') {
-                expression {
-                    // Check if branch name is master
-                    return env.BRANCH_NAME?.trim() == 'master'
-                }
+            when {
+                branch 'master' // deploy to production only if the branch is master
+            }
             steps {
                 timeout(time: 15, unit: "MINUTES") {
                     input message: 'Voulez-vous procéder au déploiement en production ?', ok: 'Oui'
